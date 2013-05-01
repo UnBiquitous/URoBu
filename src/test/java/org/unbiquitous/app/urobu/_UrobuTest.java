@@ -1,7 +1,15 @@
 package org.unbiquitous.app.urobu;
 
-import static org.mockito.Mockito.*;
-import static org.fest.assertions.api.Assertions.*;
+import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -13,6 +21,7 @@ import org.unbiquitous.uos.core.applicationManager.UosApplication;
 import org.unbiquitous.uos.core.messageEngine.dataType.UpDevice;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 public class _UrobuTest {
 
@@ -75,6 +84,86 @@ public class _UrobuTest {
 		
 		verify(agentUtil,times(1)).move(agentCatcher.capture(), eq(oldDevice), eq(gateway));
 		verify(agentUtil,times(1)).move(agentCatcher.capture(), eq(newDevice), eq(gateway));
+	}
+	
+	@SuppressWarnings("serial")
+	@Test public void onDataCollectionRelatesTheUserWithTheData(){
+		app.dataCollected(new HashMap<String, Object>(){
+			{
+				put("user","john");
+				put("platform",  new HashMap<String,Object>(){
+					{
+						put("language","pt");
+						put("architecture","64bits");
+					}
+				});
+				put("device","my_nokia_s60");
+				put("drivers",Lists.newArrayList("a","b"));
+			}
+		});
+		Map<String,Map<String,Object>> stats= app.userStats();
+		
+		
+		Map<String, Map<String, Object>> result = new HashMap<String, Map<String,Object>>(){
+			{
+				put("john",  new HashMap<String,Object>(){
+					{
+						put("language","pt");
+						put("devices",Lists.newArrayList("my_nokia_s60"));
+						put("drivers",Sets.newHashSet("a","b"));
+					}
+				});
+			}
+		};
+		
+		assertThat(stats).isEqualTo(result);
+	}
+	
+	@SuppressWarnings("serial")
+	@Test public void onEachDataCollectionAgregatesUserWithTheData(){
+		app.dataCollected(new HashMap<String, Object>(){
+			{
+				put("user","john");
+				put("platform",  new HashMap<String,Object>(){
+					{
+						put("language","pt");
+						put("architecture","64bits");
+					}
+				});
+				put("device","my_nokia_s60");
+				put("drivers",Lists.newArrayList("a","b"));
+			}
+		});
+		app.dataCollected(new HashMap<String, Object>(){
+			{
+				put("user","john");
+				put("platform",  new HashMap<String,Object>(){
+					{
+						put("language","en");
+						put("architecture","32bits");
+					}
+				});
+				put("device","my_nexus_one");
+				put("drivers",Lists.newArrayList("b","c"));
+			}
+		});
+		
+		Map<String,Map<String,Object>> stats= app.userStats();
+		
+		
+		Map<String, Map<String, Object>> result = new HashMap<String, Map<String,Object>>(){
+			{
+				put("john",  new HashMap<String,Object>(){
+					{
+						put("language","en");
+						put("devices",Lists.newArrayList("my_nokia_s60","my_nexus_one"));
+						put("drivers",Sets.newHashSet("a","b","c"));
+					}
+				});
+			}
+		};
+		
+		assertThat(stats).isEqualTo(result);
 	}
 	
 }

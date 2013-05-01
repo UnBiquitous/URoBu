@@ -1,6 +1,10 @@
 package org.unbiquitous.app.urobu;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.unbiquitous.driver.execution.executeAgent.AgentUtil;
@@ -15,12 +19,14 @@ import org.unbiquitous.uos.core.ontologyEngine.api.OntologyUndeploy;
 public class Urobu implements UosApplication{
 	
 	private Set<UpDevice> visited ;
+	private Map<String, Map<String, Object>> userStats ;
 	private String myId;
 	
 	@Override
 	public void init(OntologyDeploy ontology, String id) {
 		this.myId = id;
 		visited = new HashSet<UpDevice>();
+		userStats = new HashMap<String, Map<String,Object>>();
 	}
 
 	@Override
@@ -61,8 +67,57 @@ public class Urobu implements UosApplication{
 	@Override
 	public void tearDown(OntologyUndeploy ontology) throws Exception {}
 	
-//	public Map<String,Object> dataCollected(Map<String,Object> parameter){
-//		return callbackMap = parameter;
-//	}
+	public Map<String,Object> dataCollected(Map<String,Object> parameter){
+		String user = (String) parameter.get("user");
+		
+		if (!userStats.containsKey(user)){
+			userStats.put(user, new HashMap<String, Object>());
+		}
+		
+		Map<String, Object> userMap = userStats.get(user);
+		
+		populatePlatformInfo(parameter, userMap);
+		populateDevices(parameter, userMap);
+		populateDrivers(parameter, userMap);
+		
+		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	private void populateDevices(Map<String, Object> parameter,
+			Map<String, Object> userMap) {
+		List<String> devices;
+		if (!userMap.containsKey("devices")){
+			devices = new ArrayList<String>();
+			userMap.put("devices",devices);
+		}else{
+			devices = (List<String>) userMap.get("devices");
+		}
+		devices.add((String) parameter.get("device"));
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void populateDrivers(Map<String, Object> parameter,
+			Map<String, Object> userMap) {
+		Set<String> drivers;
+		if (!userMap.containsKey("drivers")){
+			drivers = new HashSet<String>();
+			userMap.put("drivers",drivers);
+		}else{
+			drivers = (Set<String>) userMap.get("drivers");
+		}
+		drivers.addAll((List<String>)parameter.get("drivers"));
+	}
+
+	@SuppressWarnings("unchecked")
+	private void populatePlatformInfo(Map<String, Object> parameter,
+			Map<String, Object> userMap) {
+		Map<String, String> platform = (Map<String, String>) parameter.get("platform");
+		userMap.put("language",platform.get("language"));
+	}
+	
+	Map<String, Map<String, Object>> userStats() {
+		return userStats;
+	}
 
 }

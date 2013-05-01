@@ -2,19 +2,23 @@ package org.unbiquitous.app.urobu;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.unbiquitous.driver.execution.executeAgent.Agent;
 import org.unbiquitous.uos.core.adaptabitilyEngine.Gateway;
+import org.unbiquitous.uos.core.driverManager.DriverData;
 import org.unbiquitous.uos.core.messageEngine.dataType.UpDevice;
+import org.unbiquitous.uos.core.messageEngine.dataType.UpDriver;
 import org.unbiquitous.uos.core.messageEngine.dataType.UpNetworkInterface;
 import org.unbiquitous.uos.core.messageEngine.messages.ServiceCall;
+
+import com.google.common.collect.Lists;
 
 public class _CollectorAgentTest {
 
@@ -39,6 +43,65 @@ public class _CollectorAgentTest {
 		assertThat(callCaptor.getValue().getDriver()).isEqualTo("app");
 		assertThat(callCaptor.getValue().getService()).isEqualTo("dataCollected");
 		assertThat(callCaptor.getValue().getParameters()).isEqualTo(collectedData);
+	}
+	
+	@Test public void incrementsDataWithDeviceName() throws Exception{
+		CollectorAgent agent = new CollectorAgent();
+		UpDevice origin = setOriginDevice(agent, "me");
+		Gateway gateway = mock(Gateway.class);
+		when(gateway.getCurrentDevice()).thenReturn(new UpDevice("ThisOne"));
+		agent.run(gateway);
+		
+		ArgumentCaptor<ServiceCall> callCaptor = ArgumentCaptor.forClass(ServiceCall.class);
+		
+		verify(gateway).callService(eq(origin),callCaptor.capture());
+		assertThat(callCaptor.getValue().getParameterString("device"))
+													.isEqualTo("ThisOne");
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test public void incrementsDataWithDeviceDriversList() throws Exception{
+		CollectorAgent agent = new CollectorAgent();
+		UpDevice origin = setOriginDevice(agent, "me");
+		Gateway gateway = mock(Gateway.class);
+		when(gateway.listDrivers(null))
+			.thenReturn(
+				Lists.newArrayList(
+						new DriverData(new UpDriver("a"), null, null),
+						new DriverData(new UpDriver("b"), null, null),
+						new DriverData(new UpDriver("c"), null, null)
+				)
+			);
+		agent.run(gateway);
+		
+		ArgumentCaptor<ServiceCall> callCaptor = ArgumentCaptor.forClass(ServiceCall.class);
+		
+		verify(gateway).callService(eq(origin),callCaptor.capture());
+		assertThat((List<String>)callCaptor.getValue().getParameter("drivers"))
+													.containsOnly("a","b","c");
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test public void incrementsDataWithDeviceDriversListWithoutRepetitions() throws Exception{
+		CollectorAgent agent = new CollectorAgent();
+		UpDevice origin = setOriginDevice(agent, "me");
+		Gateway gateway = mock(Gateway.class);
+		when(gateway.listDrivers(null))
+			.thenReturn(
+				Lists.newArrayList(
+						new DriverData(new UpDriver("a"), null, null),
+						new DriverData(new UpDriver("b"), null, null),
+						new DriverData(new UpDriver("a"), null, null)
+				)
+			);
+		agent.run(gateway);
+		
+		ArgumentCaptor<ServiceCall> callCaptor = ArgumentCaptor.forClass(ServiceCall.class);
+		
+		verify(gateway).callService(eq(origin),callCaptor.capture());
+		assertThat((List<String>)callCaptor.getValue().getParameter("drivers"))
+													.containsOnly("a","b")
+													.hasSize(2);
 	}
 
 	private UpDevice setOriginDevice(CollectorAgent agent, String appId) {
