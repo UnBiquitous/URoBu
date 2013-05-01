@@ -1,21 +1,21 @@
 package org.unbiquitous.app.urobu;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Point;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
 import android.media.AudioManager;
 import android.media.MediaRecorder;
 import android.view.Display;
 
-public class Collector {
+public class Collector implements Serializable{
+	private static final long serialVersionUID = -3630854382372498910L;
 
 	private Context context;
 
@@ -61,20 +61,12 @@ public class Collector {
 		return props;
 	}
 	
-	@SuppressLint("NewApi")
 	@SuppressWarnings("deprecation")
 	public Map<String,Object> getScreenSize(){
 		Map<String, Object> map = new HashMap<String, Object>();
 		Display display = activity.getWindowManager().getDefaultDisplay();
-		if (android.os.Build.VERSION.SDK_INT < 13){
-			map.put("width", display.getWidth());
-			map.put("height",display.getHeight());
-		}else{
-			Point size = new Point();
-			display.getSize(size);
-			map.put("width", size.x);
-			map.put("height",size.y);
-		}
+		map.put("width", display.getWidth());
+		map.put("height",display.getHeight());
 		return map;
 	}
 	

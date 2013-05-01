@@ -8,13 +8,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.unbiquitous.driver.execution.executeAgent.Agent;
 import org.unbiquitous.driver.execution.executeAgent.AgentUtil;
 import org.unbiquitous.uos.core.adaptabitilyEngine.Gateway;
 import org.unbiquitous.uos.core.applicationManager.UosApplication;
@@ -29,7 +29,7 @@ public class _UrobuTest {
 	private Urobu app;
 	private Gateway gateway;
 	private AgentUtil agentUtil;
-	private ArgumentCaptor<Agent> agentCatcher;
+	private ArgumentCaptor<Serializable> agentCatcher;
 	private UpDevice thisDevice;
 
 	@Before public void setUp(){
@@ -43,7 +43,7 @@ public class _UrobuTest {
 		
 		agentUtil = mock(AgentUtil.class);
 		AgentUtil.setInstance(agentUtil);
-		agentCatcher = ArgumentCaptor.forClass(Agent.class);
+		agentCatcher = ArgumentCaptor.forClass(Serializable.class);
 	}
 	
 	@Test public void UrobuIsAnApp(){
@@ -61,7 +61,7 @@ public class _UrobuTest {
 		assertThat(agentCatcher.getValue()).isInstanceOf(CollectorAgent.class);
 	}
 	
-	@Test public void setCollectorAgentWithDeviceData() throws Exception{
+	@Test public void setsCollectorAgentWithDeviceData() throws Exception{
 		when(gateway.listDevices())
 						.thenReturn(Lists.newArrayList(new UpDevice("Test")));
 		
@@ -85,6 +85,20 @@ public class _UrobuTest {
 		verify(agentUtil,times(1)).move(agentCatcher.capture(), eq(oldDevice), eq(gateway));
 		verify(agentUtil,times(1)).move(agentCatcher.capture(), eq(newDevice), eq(gateway));
 	}
+	
+	@Test public void sendAAndroidAgentToDalvik() throws Exception{
+		
+		UpDevice targetDevice = new UpDevice("Test");
+		targetDevice.addProperty("platform","Dalvik");
+		when(gateway.listDevices()).thenReturn(Lists.newArrayList(targetDevice));
+		
+		app.loop(gateway, null);
+		
+		verify(agentUtil).move(agentCatcher.capture(), eq(targetDevice), eq(gateway));
+		assertThat(agentCatcher.getValue().getClass().getName())
+				.isEqualTo("org.unbiquitous.app.urobu.AUrobuCollector");
+	}
+	
 	
 	@SuppressWarnings("serial")
 	@Test public void onDataCollectionRelatesTheUserWithTheData(){

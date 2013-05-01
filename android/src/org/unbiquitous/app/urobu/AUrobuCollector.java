@@ -1,5 +1,6 @@
 package org.unbiquitous.app.urobu;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,8 +11,9 @@ import java.util.Set;
 import android.app.Activity;
 import android.content.Context;
 
-public class AUrobuCollector {
-
+public class AUrobuCollector implements Serializable {
+	private static final long serialVersionUID = 5411368741627368847L;
+	
 	private String name;
 	private String address;
 	private String netType;
@@ -31,6 +33,7 @@ public class AUrobuCollector {
 	public void run(final Map gateway){
 		Map<String, Object> data = collectRawData(gateway);
 		collectDrivers(gateway, data);
+		collectDevice(gateway, data);
 		sendData(gateway, data);
 	}
 
@@ -76,6 +79,13 @@ public class AUrobuCollector {
 			driverSet.add((String) driverMap.get("name"));
 		}
 		data.put("drivers", driverSet);
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private void collectDevice(final Map gateway, Map<String, Object> data) {
+		Map<String, Object> device = (Map<String, Object>) 
+										gateway.put("getCurrentDevice",null);
+		
+		data.put("device", device.get("name"));
 	}
 
 	@SuppressWarnings({  "rawtypes" })

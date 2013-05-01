@@ -1,5 +1,8 @@
 package org.unbiquitous.app.urobu;
 
+import java.io.InputStream;
+import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -8,6 +11,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.unbiquitous.driver.execution.executeAgent.AgentUtil;
+import org.unbiquitous.driver.execution.executeAgent.ClassToolbox;
+import org.unbiquitous.uos.core.Logger;
 import org.unbiquitous.uos.core.adaptabitilyEngine.Gateway;
 import org.unbiquitous.uos.core.applicationManager.UosApplication;
 import org.unbiquitous.uos.core.messageEngine.dataType.UpDevice;
@@ -17,6 +22,8 @@ import org.unbiquitous.uos.core.ontologyEngine.api.OntologyStart;
 import org.unbiquitous.uos.core.ontologyEngine.api.OntologyUndeploy;
 
 public class Urobu implements UosApplication{
+	
+	private static final Logger logger = Logger.getLogger(Urobu.class);
 	
 	private Set<UpDevice> visited ;
 	private Map<String, Map<String, Object>> userStats ;
@@ -43,12 +50,16 @@ public class Urobu implements UosApplication{
 			for(UpDevice device : gateway.listDevices()){
 				if (!visited.contains(device)){
 					visited.add(device);
-					sendAgent(gateway, currentDevice, network, device);
+					String platform = (String) device.getProperty("platform");
+					if (platform != null && platform.equals("Dalvik")){
+						sendDalvikAgent(gateway, currentDevice, network, device);
+					}else{
+						sendAgent(gateway, currentDevice, network, device);
+					}
 				}
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e);
 		}
 	}
 
@@ -61,6 +72,24 @@ public class Urobu implements UosApplication{
 		AgentUtil.getInstance().move(agent, device, gateway);
 	}
 
+	@SuppressWarnings("unused")
+	private void sendDalvikAgent(Gateway gateway, UpDevice currentDevice,
+			UpNetworkInterface network, UpDevice device) throws Exception{
+		ClassToolbox toolbox = new ClassToolbox();
+		InputStream jar = ClassLoader.getSystemClassLoader().getResourceAsStream("urobu-android.jar");
+		System.out.println(jar);
+		ClassLoader loader = toolbox.load(jar);
+		Class<Serializable> aCollector = (Class<Serializable>) loader.loadClass("org.unbiquitous.app.urobu.AUrobuCollector");
+		Serializable agent = aCollector.newInstance();
+		//TODO: Untested
+		Method setOriginDevice = aCollector.getMethod("setOriginDevice", String.class,String.class,String.class,String.class);
+		setOriginDevice.invoke(agent, currentDevice.getName(), 
+								network.getNetworkAddress(), 
+								network.getNetType(), this.myId);
+		
+		AgentUtil.getInstance().move(agent, device, gateway);
+	}
+	
 	@Override
 	public void stop() throws Exception {}
 
