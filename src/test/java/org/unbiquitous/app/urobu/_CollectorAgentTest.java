@@ -5,7 +5,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import java.awt.Point;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,6 +25,7 @@ public class _CollectorAgentTest {
 	@Test public void mustBeSendCollectorDataToApp() throws Exception{
 		CollectorAgent agent = new CollectorAgent();
 		Map<String, Object> collectedData = createDummyData();
+		
 		String appId = "me";
 		UpDevice origin = setOriginDevice(agent, appId);
 		Gateway gateway = mock(Gateway.class);
@@ -56,8 +56,11 @@ public class _CollectorAgentTest {
 		Map<String, Object> collectedData = new HashMap<String, Object>();
 		
 		Collector dummyCollector = new Collector(){
-			public Point getCameraResolution() {
-				return new Point(10,20);
+			public Map<String, Object>  getCameraResolution() {
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("width",10);
+				map.put("height",20);
+				return map;
 			}
 			public Float getMaxAudioInputAmplitude() {
 				return 30f;
@@ -70,8 +73,11 @@ public class _CollectorAgentTest {
 				map.put("a","1");
 				return map;
 			}
-			public Point getScreenSize() {
-				return new Point(50,60);
+			public Map<String, Object>  getScreenSize() {
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("width",50);
+				map.put("height",60);
+				return map;
 			}
 			public String getUserName() {
 				return "John";

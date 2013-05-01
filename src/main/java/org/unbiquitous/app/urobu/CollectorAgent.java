@@ -3,9 +3,9 @@ package org.unbiquitous.app.urobu;
 import org.unbiquitous.driver.execution.executeAgent.Agent;
 import org.unbiquitous.uos.core.Logger;
 import org.unbiquitous.uos.core.adaptabitilyEngine.Gateway;
-import org.unbiquitous.uos.core.adaptabitilyEngine.NotifyException;
+import org.unbiquitous.uos.core.adaptabitilyEngine.ServiceCallException;
 import org.unbiquitous.uos.core.messageEngine.dataType.UpDevice;
-import org.unbiquitous.uos.core.messageEngine.messages.Notify;
+import org.unbiquitous.uos.core.messageEngine.messages.ServiceCall;
 
 public class CollectorAgent extends Agent{
 	private static final long serialVersionUID = -2445441397378542216L;
@@ -25,10 +25,10 @@ public class CollectorAgent extends Agent{
 	public void run(Gateway gateway) {
 		try {
 			Collector collector = Collector.getInstance();
-			Notify result = new Notify("dataCollected", "app", appId);
-			result.setParameters(collector.collectData());
-			gateway.sendEventNotify(result, origin);
-		} catch (NotifyException e) {
+			ServiceCall call = new ServiceCall("app","dataCollected", appId);
+			call.setParameters(collector.collectData());
+			gateway.callService(origin,call);
+		} catch (ServiceCallException e) {
 			logger.error(e);
 		}
 	}

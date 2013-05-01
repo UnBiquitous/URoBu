@@ -1,7 +1,6 @@
 package org.unbiquitous.app.urobu;
 
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.Toolkit;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,14 +54,15 @@ public class Collector {
 		return props;
 	}
 	
-	public Point getScreenSize(){
+	public Map<String,Object> getScreenSize(){
+		Map<String,Object> size = new HashMap<String, Object>();
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		int width = (int) screenSize.getWidth();
-		int height = (int) screenSize.getHeight();
-		return new Point(width,height);
+		size.put("width", (int) screenSize.getWidth());
+		size.put("height",(int) screenSize.getHeight());
+		return size;
 	}
 	
-	public Point getCameraResolution(){
+	public Map<String,Object> getCameraResolution(){
 		return null;
 	}
 	

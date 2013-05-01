@@ -15,9 +15,11 @@ import org.unbiquitous.uos.core.ontologyEngine.api.OntologyUndeploy;
 public class Urobu implements UosApplication{
 	
 	private Set<UpDevice> visited ;
+	private String myId;
 	
 	@Override
 	public void init(OntologyDeploy ontology, String id) {
+		this.myId = id;
 		visited = new HashSet<UpDevice>();
 	}
 
@@ -49,7 +51,7 @@ public class Urobu implements UosApplication{
 		CollectorAgent agent = new CollectorAgent();
 		agent.setOriginDevice(currentDevice.getName(), 
 								network.getNetworkAddress(), 
-								network.getNetType(), null);
+								network.getNetType(), this.myId);
 		AgentUtil.getInstance().move(agent, device, gateway);
 	}
 
@@ -58,5 +60,9 @@ public class Urobu implements UosApplication{
 
 	@Override
 	public void tearDown(OntologyUndeploy ontology) throws Exception {}
+	
+//	public Map<String,Object> dataCollected(Map<String,Object> parameter){
+//		return callbackMap = parameter;
+//	}
 
 }

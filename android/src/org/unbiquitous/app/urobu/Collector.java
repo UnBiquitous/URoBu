@@ -13,6 +13,7 @@ import android.hardware.Camera;
 import android.hardware.Camera.Size;
 import android.media.AudioManager;
 import android.media.MediaRecorder;
+import android.view.Display;
 
 public class Collector {
 
@@ -62,18 +63,22 @@ public class Collector {
 	
 	@SuppressLint("NewApi")
 	@SuppressWarnings("deprecation")
-	public Point getScreenSize(){
-		Point size = new Point();
+	public Map<String,Object> getScreenSize(){
+		Map<String, Object> map = new HashMap<String, Object>();
+		Display display = activity.getWindowManager().getDefaultDisplay();
 		if (android.os.Build.VERSION.SDK_INT < 13){
-			size.x = activity.getWindowManager().getDefaultDisplay().getWidth();
-			size.y = activity.getWindowManager().getDefaultDisplay().getHeight();
+			map.put("width", display.getWidth());
+			map.put("height",display.getHeight());
 		}else{
-			activity.getWindowManager().getDefaultDisplay().getSize(size);
+			Point size = new Point();
+			display.getSize(size);
+			map.put("width", size.x);
+			map.put("height",size.y);
 		}
-		return size;
+		return map;
 	}
 	
-	public Point getCameraResolution(){
+	public Map<String,Object> getCameraResolution(){
 		try {
 			Camera camera = Camera.open();
 			Size biggest = null;
@@ -84,7 +89,10 @@ public class Collector {
 					biggest = s;
 				}
 			}
-			return new Point(biggest.width,biggest.height);
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("width",biggest.width);
+			map.put("height",biggest.height);
+			return map;
 		} catch (Exception e) {
 			return null;
 		}

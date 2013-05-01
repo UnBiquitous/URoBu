@@ -25,7 +25,7 @@ public class _UrobuTest {
 
 	@Before public void setUp(){
 		app = new Urobu();
-		app.init(null, null);
+		app.init(null, "urobu_1");
 		gateway = mock(Gateway.class);
 		thisDevice = new UpDevice("Me")
 								.addNetworkInterface("addr", "type");
@@ -61,7 +61,7 @@ public class _UrobuTest {
 		verify(agentUtil).move(agentCatcher.capture(), (UpDevice) anyObject(), eq(gateway));
 		CollectorAgent agent = (CollectorAgent) agentCatcher.getValue();
 		assertThat(agent.origin).isEqualTo(thisDevice);
-		//TODO: and the id?
+		assertThat(agent.appId).isEqualTo("urobu_1");
 	}
 	
 	@Test public void sendAgentToNewDevices() throws Exception{
