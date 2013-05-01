@@ -1,0 +1,46 @@
+App 1 - URoBu - User pRofile Builder
+
+This app colects data about the devices in the smart space allowing to map
+	which capabilities are not yet addressed and which user is the best to
+	reach when they are available.
+
+This app work as follows:
+	- The Application runs on a more capable device (like a PC)
+	- Whenever a new device is found, an Agent is sent to collect data like:
+		- Who is the user
+		- The platform in which the dvice is running (SO, JVM)
+		- The CPU capabilities
+		- The Screen Resolution
+		- Which type of camera it has
+		- Which type of auido input (mic) and output it has (speaker)
+		- Which type of keyboard it has
+		- Is it touch eneabled? Mutitouch?
+		- Which resources are available through the uOS
+	- This data populates the User Ontology.
+	- This data helps to map which resources we have in the smart space and
+		who is responsible for it. This gives us a profile about the user and
+		which capabilities he could be providing to the smart space.
+
+
+
+----
+
+App 2 - uA3 - Ubiquitous Auto Audio Adjustment
+
+Tenho uma aplicação que toca audio.
+Determino um nível de volume.
+Mando os agentes pra todo dispositivo novo que entrar no ambiente que tenha recurso de audio.
+Pego o nível de ruido de cada dispositivo.
+Calculo uma média e ajusto o audio pra ficar adequado.
+
+CPU
+Disco
+Bateria
+Cameras
+Localização
+Acelerometro
+Nome do usuário
+Nome das redes wifi
+Intensidade das redes wifi
+Dispositivos BT proximos
+Trafego de dados (qtde vs hora do dia)

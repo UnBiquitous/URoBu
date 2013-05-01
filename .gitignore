@@ -6,4 +6,6 @@ android/.classpath
 android/.project
 android/.settings/
 android/target/
+android/bin/
+android/gen/
 *.class
