@@ -9,10 +9,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.unbiquitous.driver.execution.executeAgent.AgentUtil;
 import org.unbiquitous.driver.execution.executeAgent.ClassToolbox;
-import org.unbiquitous.uos.core.Logger;
+import org.unbiquitous.uos.core.UOSLogging;
 import org.unbiquitous.uos.core.adaptabitilyEngine.Gateway;
 import org.unbiquitous.uos.core.applicationManager.UosApplication;
 import org.unbiquitous.uos.core.messageEngine.dataType.UpDevice;
@@ -23,7 +25,7 @@ import org.unbiquitous.uos.core.ontologyEngine.api.OntologyUndeploy;
 
 public class Urobu implements UosApplication{
 	
-	private static final Logger logger = Logger.getLogger(Urobu.class);
+	private static final Logger logger = UOSLogging.getLogger();
 	
 	private Set<UpDevice> visited ;
 	private Map<String, Map<String, Object>> userStats ;
@@ -59,7 +61,7 @@ public class Urobu implements UosApplication{
 				}
 			}
 		} catch (Exception e) {
-			logger.error(e);
+			logger.log(Level.SEVERE,"",e);
 		}
 	}
 

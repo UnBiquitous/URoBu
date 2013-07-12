@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.unbiquitous.driver.execution.executeAgent.Agent;
-import org.unbiquitous.uos.core.Logger;
+import org.unbiquitous.uos.core.UOSLogging;
 import org.unbiquitous.uos.core.adaptabitilyEngine.Gateway;
 import org.unbiquitous.uos.core.adaptabitilyEngine.ServiceCallException;
 import org.unbiquitous.uos.core.driverManager.DriverData;
@@ -15,7 +17,7 @@ import org.unbiquitous.uos.core.messageEngine.messages.ServiceCall;
 
 public class CollectorAgent extends Agent{
 	private static final long serialVersionUID = -2445441397378542216L;
-	private static final Logger logger = Logger.getLogger(CollectorAgent.class);
+	private static final Logger logger = UOSLogging.getLogger();
 
 	String appId;
 	UpDevice origin;
@@ -37,7 +39,7 @@ public class CollectorAgent extends Agent{
 			addDriverInformation(gateway, call);
 			gateway.callService(origin,call);
 		} catch (ServiceCallException e) {
-			logger.error(e);
+			logger.log(Level.SEVERE,"",e);
 		}
 	}
 
